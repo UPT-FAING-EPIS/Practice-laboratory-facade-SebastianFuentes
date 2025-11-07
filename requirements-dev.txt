@@ -1,0 +1,12 @@
+# Requirements para desarrollo y testing
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# Herramientas de desarrollo opcionales
+black>=22.0.0
+flake8>=5.0.0
+mypy>=1.0.0
+
+# Para generar documentación
+sphinx>=5.0.0
+sphinx-rtd-theme>=1.0.0

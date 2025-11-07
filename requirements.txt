@@ -1,0 +1,5 @@
+# Requirements mínimos para ejecutar el proyecto
+# No hay dependencias externas, solo Python estándar (3.8+)
+
+# Para Python < 3.7 (si fuera necesario)
+# dataclasses
