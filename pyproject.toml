@@ -68,6 +68,9 @@ addopts = [
     "--tb=short",
     "--strict-markers",
 ]
+markers = [
+    "performance: marks tests as performance tests (deselect with '-m \"not performance\"')",
+]
 
 [tool.black]
 line-length = 88

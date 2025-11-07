@@ -123,9 +123,9 @@ class ShippingService:
             "Entregado",
         ]
 
-        import random
+        import secrets
 
-        current_status = random.choice(statuses)
+        current_status = secrets.choice(statuses)  # noqa: B311
 
         return {
             "tracking_number": tracking_number,

@@ -230,8 +230,8 @@ class OrderFacade:
             # Intentar revertir cambios
             try:
                 self.inventory.release(sku, qty)
-            except:
-                pass
+            except Exception as rollback_error:  # noqa: B110
+                print(f"Warning: Failed to rollback inventory: {rollback_error}")
 
             result = OrderResult(
                 success=False,
