@@ -5,7 +5,7 @@ Este módulo maneja el envío de notificaciones por diferentes canales
 como email, SMS y push notifications.
 """
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 from datetime import datetime
 from enum import Enum
 
@@ -22,10 +22,10 @@ class NotificationChannel(Enum):
 class NotificationService:
     """Servicio de notificaciones multi-canal."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Inicializa el servicio con configuración de canales."""
-        self._sent_notifications = []
-        self._customer_preferences = {}
+        self._sent_notifications: list[Dict] = []
+        self._customer_preferences: dict[str, List[NotificationChannel]] = {}
 
         # Plantillas de notificación
         self._templates = {
@@ -179,18 +179,27 @@ class NotificationService:
         Returns:
             Diccionario con estadísticas del envío
         """
-        results = {"sent": 0, "failed": 0, "details": []}
+        results: Dict[str, Union[int, list]] = {"sent": 0, "failed": 0, "details": []}
 
+        sent_count = 0
+        failed_count = 0
+        details_list: list[Dict] = []
+        
         for customer_id in customer_ids:
             success = self.notify(customer_id, message, channel)
+            
             if success:
-                results["sent"] += 1
+                sent_count += 1
             else:
-                results["failed"] += 1
+                failed_count += 1
 
-            results["details"].append(
+            details_list.append(
                 {"customer_id": customer_id, "status": "sent" if success else "failed"}
             )
+        
+        results["sent"] = sent_count
+        results["failed"] = failed_count
+        results["details"] = details_list
 
         print(
             f"[Bulk Notification] Enviado: {results['sent']}, Fallidos: {results['failed']}"
@@ -209,9 +218,8 @@ class NotificationService:
         Returns:
             Lista de canales preferidos (por defecto: email)
         """
-        return self._customer_preferences.get(
-            customer_id, [NotificationChannel.EMAIL]  # Canal por defecto
-        )
+        preferences = self._customer_preferences.get(customer_id)
+        return preferences if preferences is not None else [NotificationChannel.EMAIL]
 
     def get_notification_stats(self) -> Dict:
         """
@@ -226,8 +234,8 @@ class NotificationService:
             return {"total": 0, "by_channel": {}, "by_customer": {}}
 
         # Estadísticas por canal
-        by_channel = {}
-        by_customer = {}
+        by_channel: dict[str, int] = {}
+        by_customer: dict[str, int] = {}
 
         for notification in self._sent_notifications:
             channel = notification["channel"]

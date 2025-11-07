@@ -11,7 +11,7 @@ from typing import Dict
 class InventoryService:
     """Servicio para gestionar el inventario de productos."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Inicializa el servicio con stock simulado."""
         # Stock simulado: sku -> cantidad
         self._stock: Dict[str, int] = {

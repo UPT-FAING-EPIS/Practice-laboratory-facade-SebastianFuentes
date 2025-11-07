@@ -7,7 +7,7 @@ para el sistema de logística.
 
 import uuid
 from dataclasses import dataclass
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Union
 from datetime import datetime, timedelta
 
 
@@ -27,9 +27,9 @@ class ShipmentInfo:
 class ShippingService:
     """Servicio de envíos para gestionar la logística de productos."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Inicializa el servicio con configuración de carriers."""
-        self._carriers = {
+        self._carriers: Dict[str, Dict[str, Union[str, int, float]]] = {
             "standard": {"name": "Correos Nacionales", "days": 5, "cost": 10.0},
             "express": {"name": "Express Delivery", "days": 3, "cost": 25.0},
             "premium": {"name": "Premium Logistics", "days": 1, "cost": 50.0},
@@ -79,7 +79,9 @@ class ShippingService:
         tracking_number = f"TRK{shipment_id[:8].upper()}"
 
         # Calcular fecha estimada de entrega
-        delivery_date = datetime.now() + timedelta(days=carrier_info["days"])
+        days_value = carrier_info["days"]
+        days = int(days_value) if isinstance(days_value, (int, float)) else 5
+        delivery_date = datetime.now() + timedelta(days=days)
 
         # Simular zona de cobertura
         city = self._get_customer_city(customer_id, shipping_address)
@@ -96,9 +98,9 @@ class ShippingService:
         return ShipmentInfo(
             success=True,
             shipment_id=shipment_id,
-            eta_days=carrier_info["days"] + (1 if zone == "zone_3" else 0),
+            eta_days=days + (1 if zone == "zone_3" else 0),
             tracking_number=tracking_number,
-            carrier=carrier_info["name"],
+            carrier=str(carrier_info["name"]),
             estimated_delivery=delivery_date.strftime("%Y-%m-%d"),
             message=f"Envío programado via {carrier_info['name']}",
         )
@@ -158,15 +160,20 @@ class ShippingService:
         Returns:
             Costo total de envío
         """
-        base_cost = self._carriers.get(shipping_type, self._carriers["standard"])[
-            "cost"
-        ]
+        carrier_data = self._carriers.get(shipping_type, self._carriers["standard"])
+        cost_value = carrier_data["cost"]
+        base_cost = float(cost_value) if isinstance(cost_value, (int, float)) else 10.0
 
         # Costo adicional por peso (simulado)
-        total_weight = sum(item.get("weight", 1) for item in items)
+        weights = []
+        for item in items:
+            weight = item.get("weight", 1)
+            weights.append(float(weight) if isinstance(weight, (int, float)) else 1.0)
+        
+        total_weight = sum(weights)
         weight_cost = max(0, (total_weight - 2) * 5)  # Costo extra por kg adicional
 
-        return base_cost + weight_cost
+        return float(base_cost + weight_cost)
 
     def get_available_carriers(self) -> Dict:
         """
@@ -175,12 +182,14 @@ class ShippingService:
         Returns:
             Diccionario con información de carriers
         """
-        return self._carriers.copy()
+        carriers_copy: Dict[str, Dict[str, Union[str, int, float]]] = self._carriers.copy()
+        return carriers_copy
 
     def _get_customer_city(self, customer_id: str, address: Optional[Dict]) -> str:
         """Obtiene la ciudad del cliente (simulado)."""
         if address and "city" in address:
-            return address["city"]
+            city_value = address["city"]
+            return str(city_value) if city_value else "Lima"
 
         # Simulación basada en customer_id
         cities = ["Lima", "Arequipa", "Trujillo", "Cusco", "Chiclayo"]

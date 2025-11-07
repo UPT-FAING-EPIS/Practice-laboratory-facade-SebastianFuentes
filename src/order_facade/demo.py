@@ -17,7 +17,7 @@ from order_facade import OrderFacade, OrderResult
 from order_facade.services.notifications import NotificationChannel
 
 
-def print_separator(title: str = ""):
+def print_separator(title: str = "") -> None:
     """Imprime un separador visual."""
     print("\n" + "=" * 60)
     if title:
@@ -25,27 +25,29 @@ def print_separator(title: str = ""):
         print("=" * 60)
 
 
-def print_result(result: OrderResult, scenario: str):
+def print_result(result: OrderResult, scenario: str) -> None:
     """Imprime el resultado de un pedido de forma formateada."""
     print(f"\n🎯 Escenario: {scenario}")
     print("-" * 40)
 
     if result.success:
         print("✅ Estado: EXITOSO")
-        print(f"📦 ID del Pedido: {result.order_id[:8]}...")
+        order_id_short = result.order_id[:8] if result.order_id else "N/A"
+        print(f"📦 ID del Pedido: {order_id_short}...")
         print(f"💳 ID Transacción: {result.transaction_id}")
         print(f"🚚 Número de Seguimiento: {result.tracking_number}")
         print(f"💰 Total Pagado: ${result.total_amount:.2f}")
         print(f"📅 Entrega Estimada: {result.estimated_delivery}")
     else:
         print("❌ Estado: FALLIDO")
-        print(f"📦 ID del Pedido: {result.order_id[:8]}...")
+        order_id_short = result.order_id[:8] if result.order_id else "N/A"
+        print(f"📦 ID del Pedido: {order_id_short}...")
         print(f"⚠️  Razón: {result.reason}")
         if result.transaction_id:
             print(f"💳 ID Transacción: {result.transaction_id}")
 
 
-def demo_successful_orders(facade: OrderFacade):
+def demo_successful_orders(facade: OrderFacade) -> List[OrderResult]:
     """Demuestra pedidos exitosos."""
     print_separator("DEMO 1: PEDIDOS EXITOSOS")
 
@@ -113,7 +115,7 @@ def demo_successful_orders(facade: OrderFacade):
     return [result1, result2, result3]
 
 
-def demo_failed_orders(facade: OrderFacade):
+def demo_failed_orders(facade: OrderFacade) -> None:
     """Demuestra diferentes tipos de fallos en pedidos."""
     print_separator("DEMO 2: MANEJO DE ERRORES")
 
@@ -157,7 +159,7 @@ def demo_failed_orders(facade: OrderFacade):
     print_result(result3, "Error - Producto No Existe")
 
 
-def demo_order_management(facade: OrderFacade, successful_orders: List[OrderResult]):
+def demo_order_management(facade: OrderFacade, successful_orders: List[OrderResult]) -> None:
     """Demuestra las funciones de gestión de pedidos."""
     print_separator("DEMO 3: GESTIÓN DE PEDIDOS")
 
@@ -165,8 +167,10 @@ def demo_order_management(facade: OrderFacade, successful_orders: List[OrderResu
         order = successful_orders[0]
 
         # Consultar estado del pedido
-        print(f"\n📋 Consultando estado del pedido {order.order_id[:8]}...")
-        status = facade.get_order_status(order.order_id)
+        order_id_safe = order.order_id or "N/A"
+        order_id_short = order_id_safe[:8] if order_id_safe != "N/A" else "N/A"
+        print(f"\n📋 Consultando estado del pedido {order_id_short}...")
+        status = facade.get_order_status(order_id_safe)
 
         if status:
             print("✅ Información del pedido encontrada:")
@@ -179,8 +183,8 @@ def demo_order_management(facade: OrderFacade, successful_orders: List[OrderResu
                 print(f"   Estado del envío: {status['shipping_status']['status']}")
 
         # Demostrar cancelación de pedido
-        print(f"\n🚫 Cancelando pedido {order.order_id[:8]}...")
-        cancel_success = facade.cancel_order(order.order_id, "customer_001")
+        print(f"\n🚫 Cancelando pedido {order_id_short}...")
+        cancel_success = facade.cancel_order(order_id_safe, "customer_001")
 
         if cancel_success:
             print("✅ Pedido cancelado exitosamente")
@@ -188,7 +192,7 @@ def demo_order_management(facade: OrderFacade, successful_orders: List[OrderResu
             print("❌ Error cancelando el pedido")
 
 
-def demo_customer_history(facade: OrderFacade):
+def demo_customer_history(facade: OrderFacade) -> None:
     """Demuestra el historial de pedidos por cliente."""
     print_separator("DEMO 4: HISTORIAL DE CLIENTES")
 
@@ -223,7 +227,7 @@ def demo_customer_history(facade: OrderFacade):
         print("   No hay pedidos en el historial")
 
 
-def demo_system_statistics(facade: OrderFacade):
+def demo_system_statistics(facade: OrderFacade) -> None:
     """Demuestra las estadísticas del sistema."""
     print_separator("DEMO 5: ESTADÍSTICAS DEL SISTEMA")
 
@@ -258,7 +262,7 @@ def demo_system_statistics(facade: OrderFacade):
         print("   No hay notificaciones registradas")
 
 
-def demo_notification_preferences(facade: OrderFacade):
+def demo_notification_preferences(facade: OrderFacade) -> None:
     """Demuestra la configuración de preferencias de notificación."""
     print_separator("DEMO 6: PREFERENCIAS DE NOTIFICACIÓN")
 
@@ -287,7 +291,7 @@ def demo_notification_preferences(facade: OrderFacade):
     print(f"   Fallidas: {result['failed']}")
 
 
-def interactive_demo():
+def interactive_demo() -> OrderFacade:
     """Demostración interactiva del sistema."""
     print_separator("DEMOSTRACIÓN INTERACTIVA")
 
@@ -337,7 +341,7 @@ def interactive_demo():
     return facade
 
 
-def automated_demo():
+def automated_demo() -> OrderFacade:
     """Demostración automatizada sin interacción del usuario."""
     print_separator("DEMOSTRACIÓN AUTOMATIZADA DEL PATRÓN FACADE")
 
@@ -369,7 +373,7 @@ def automated_demo():
     return facade
 
 
-def main():
+def main() -> None:
     """Función principal del script de demostración."""
     if len(sys.argv) > 1 and sys.argv[1] == "--interactive":
         facade = interactive_demo()
@@ -387,6 +391,9 @@ def main():
     print("  pytest tests/ -v")
     print("\n🔧 Para ejecutar demo interactivo:")
     print("  python -m src.order_facade.demo --interactive")
+    
+    # Evitar el warning de mypy sobre falta de return
+    return
 
 
 if __name__ == "__main__":

@@ -63,8 +63,8 @@ class OrderFacade:
         self.notifications = notifications or NotificationService()
 
         # Estado interno para auditoría
-        self._order_history = []
-        self._failed_orders = []
+        self._order_history: list[Dict] = []
+        self._failed_orders: list[Dict] = []
 
     def place_order(
         self,
@@ -105,7 +105,7 @@ class OrderFacade:
                 result = OrderResult(
                     success=False, order_id=order_id, reason="Stock insuficiente"
                 )
-                self._record_failed_order(order_id, result.reason, customer_id)
+                self._record_failed_order(order_id, result.reason or "Error desconocido", customer_id)
                 return result
 
             reserved = self.inventory.reserve(sku, qty)
@@ -115,7 +115,7 @@ class OrderFacade:
                     order_id=order_id,
                     reason="No se pudo reservar el stock",
                 )
-                self._record_failed_order(order_id, result.reason, customer_id)
+                self._record_failed_order(order_id, result.reason or "Error desconocido", customer_id)
                 return result
 
             # 2. Calcular total y procesar pago
@@ -141,7 +141,7 @@ class OrderFacade:
                     order_id=order_id,
                     reason=f"Error en el pago: {receipt.message}",
                 )
-                self._record_failed_order(order_id, result.reason, customer_id)
+                self._record_failed_order(order_id, result.reason or "Error desconocido", customer_id)
 
                 # Notificar falla en el pago
                 self.notifications.send_order_notification(
@@ -167,7 +167,7 @@ class OrderFacade:
                     reason=f"Error en el envío: {shipment.message}",
                     transaction_id=receipt.transaction_id,
                 )
-                self._record_failed_order(order_id, result.reason, customer_id)
+                self._record_failed_order(order_id, result.reason or "Error desconocido", customer_id)
                 return result
 
             # 4. Notificar al cliente
@@ -230,7 +230,7 @@ class OrderFacade:
                 order_id=order_id,
                 reason=f"Error interno del sistema: {str(e)}",
             )
-            self._record_failed_order(order_id, result.reason, customer_id)
+            self._record_failed_order(order_id, result.reason or "Error desconocido", customer_id)
 
             return result
 
@@ -348,7 +348,7 @@ class OrderFacade:
 
     def _record_successful_order(
         self, result: OrderResult, customer_id: str, sku: str, qty: int
-    ):
+    ) -> None:
         """Registra un pedido exitoso en el historial."""
         order_record = {
             "order_id": result.order_id,
@@ -365,7 +365,7 @@ class OrderFacade:
         }
         self._order_history.append(order_record)
 
-    def _record_failed_order(self, order_id: str, reason: str, customer_id: str):
+    def _record_failed_order(self, order_id: str, reason: str, customer_id: str) -> None:
         """Registra un pedido fallido."""
         failed_record = {
             "order_id": order_id,

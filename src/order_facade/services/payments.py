@@ -25,7 +25,7 @@ class PaymentReceipt:
 class PaymentGateway:
     """Gateway de pagos para procesar transacciones financieras."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Inicializa el gateway con configuración simulada."""
         # Simulación de diferentes tipos de tarjetas y sus comportamientos
         self._card_behaviors = {
