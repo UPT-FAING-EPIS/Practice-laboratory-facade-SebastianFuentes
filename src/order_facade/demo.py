@@ -159,7 +159,9 @@ def demo_failed_orders(facade: OrderFacade) -> None:
     print_result(result3, "Error - Producto No Existe")
 
 
-def demo_order_management(facade: OrderFacade, successful_orders: List[OrderResult]) -> None:
+def demo_order_management(
+    facade: OrderFacade, successful_orders: List[OrderResult]
+) -> None:
     """Demuestra las funciones de gestión de pedidos."""
     print_separator("DEMO 3: GESTIÓN DE PEDIDOS")
 
@@ -391,7 +393,7 @@ def main() -> None:
     print("  pytest tests/ -v")
     print("\n🔧 Para ejecutar demo interactivo:")
     print("  python -m src.order_facade.demo --interactive")
-    
+
     # Evitar el warning de mypy sobre falta de return
     return
 

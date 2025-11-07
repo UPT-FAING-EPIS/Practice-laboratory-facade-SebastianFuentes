@@ -169,7 +169,7 @@ class ShippingService:
         for item in items:
             weight = item.get("weight", 1)
             weights.append(float(weight) if isinstance(weight, (int, float)) else 1.0)
-        
+
         total_weight = sum(weights)
         weight_cost = max(0, (total_weight - 2) * 5)  # Costo extra por kg adicional
 
@@ -182,7 +182,9 @@ class ShippingService:
         Returns:
             Diccionario con información de carriers
         """
-        carriers_copy: Dict[str, Dict[str, Union[str, int, float]]] = self._carriers.copy()
+        carriers_copy: Dict[str, Dict[str, Union[str, int, float]]] = (
+            self._carriers.copy()
+        )
         return carriers_copy
 
     def _get_customer_city(self, customer_id: str, address: Optional[Dict]) -> str:

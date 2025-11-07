@@ -184,10 +184,10 @@ class NotificationService:
         sent_count = 0
         failed_count = 0
         details_list: list[Dict] = []
-        
+
         for customer_id in customer_ids:
             success = self.notify(customer_id, message, channel)
-            
+
             if success:
                 sent_count += 1
             else:
@@ -196,7 +196,7 @@ class NotificationService:
             details_list.append(
                 {"customer_id": customer_id, "status": "sent" if success else "failed"}
             )
-        
+
         results["sent"] = sent_count
         results["failed"] = failed_count
         results["details"] = details_list
